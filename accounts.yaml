@@ -1,0 +1,171 @@
+# accounts.yaml — Full Human Life Taxonomy
+# Every account represents a category of your life data.
+# Entries in journal.ndjson debit/credit these accounts (for financial),
+# or reference them as the "account" field (for life/media/comms/etc).
+
+FINANCIAL:
+
+  assets:
+    checking:              "Checking accounts"
+    savings:               "Savings accounts"
+    investment_taxable:    "Taxable brokerage accounts"
+    investment_retirement: "401k, IRA, Roth, pension"
+    real_estate:           "Primary home, investment properties"
+    crypto:                "On-chain wallets, exchange balances"
+    equity_private:        "Startup equity, LLCs, SPVs"
+    collectibles:          "Art, watches, rare items"
+    other_assets:          "Anything else of value"
+
+  liabilities:
+    credit_cards:    "Credit card balances"
+    mortgage:        "Mortgage principal"
+    auto_loan:       "Car loans"
+    student_loan:    "Student debt"
+    taxes_owed:      "Estimated/accrued tax liability"
+    other_liabilities: "Loans, margin, other debt"
+
+  income:
+    salary:               "W2 wages, regular paycheck"
+    bonus:                "Annual/performance bonuses"
+    dividends:            "Stock/fund dividends"
+    interest:             "Bank/bond interest"
+    capital_gains_short:  "Short-term capital gains (<1yr)"
+    capital_gains_long:   "Long-term capital gains (>1yr)"
+    rental_income:        "Rental revenue"
+    business_income:      "Pass-through, freelance, consulting"
+    crypto_income:        "Staking rewards, airdrops, yield"
+    other_income:         "Gifts received, misc income"
+
+  expenses:
+    housing:           "Rent, mortgage payment, utilities"
+    food_dining:       "Groceries, restaurants, coffee"
+    transport:         "Gas, Uber, flights, car payment"
+    health_wellness:   "Insurance premiums, pharmacy, gym"
+    subscriptions:     "Netflix, Spotify, SaaS tools"
+    entertainment:     "Events, hobbies, recreation"
+    education:         "Courses, books, tuition"
+    travel:            "Hotels, flights, experiences"
+    gifts_donations:   "Gifts given, charitable contributions"
+    taxes_paid:        "Federal/state/local tax payments"
+    business_expenses: "Business-related costs"
+    other_expenses:    "Miscellaneous spending"
+
+LIFE:
+
+  journal:
+    daily:       "Daily diary entries"
+    thoughts:    "Ideas, reflections, observations"
+    dreams:      "Dream journal (optional)"
+
+  goals:
+    financial:    "Financial goals and milestones"
+    personal:     "Personal development goals"
+    professional: "Career and business goals"
+
+  milestones:
+    home_purchase: "Buying a home"
+    marriage:      "Marriage, partnership"
+    children:      "Birth, adoption of children"
+    graduations:   "Degrees, certifications earned"
+    ipo:           "Company IPO event"
+    exits:         "Business exits, acquisitions"
+    other:         "Any major life milestone"
+
+  decisions:
+    major: "Major life decisions recorded with full reasoning"
+
+MEDIA:
+
+  photos:
+    camera_roll: "Photos from device camera roll (hash + path, not stored in git)"
+    screenshot:  "Meaningful screenshots with context"
+    scan:        "Scanned documents, receipts"
+
+  videos:
+    personal:    "Personal video clips (hash + path + transcript)"
+    screen:      "Screen recordings"
+
+  audio:
+    voice_memo:  "Voice memos (hash + path + transcript)"
+    recording:   "Other audio recordings"
+
+COMMUNICATIONS:
+
+  calls:
+    phone:  "Phone calls (Whisper transcript + AI summary)"
+    video:  "Video calls: Zoom, FaceTime, Meet"
+
+  messages:
+    imessage: "iMessage / SMS threads"
+    signal:   "Signal messages"
+    whatsapp: "WhatsApp threads"
+
+  ai:
+    al:       "Al (OpenClaw) — full conversation log, decisions, and summaries"
+
+  emails:
+    important: "High-importance email threads"
+    flagged:   "Manually flagged emails"
+
+  chats:
+    discord:  "Discord messages and threads"
+    slack:    "Slack threads"
+    teams:    "Microsoft Teams chats"
+
+  social:
+    twitter:    "Tweets, replies, DMs"
+    linkedin:   "LinkedIn posts and messages"
+    instagram:  "Instagram posts and stories"
+    threads:    "Threads posts"
+    reddit:     "Reddit posts and comments"
+
+  meetings:
+    calendar_event: "Calendar events with notes/transcripts"
+
+LOCATION:
+
+  places:
+    visited: "Named locations visited"
+    home:    "Home location"
+    work:    "Work locations"
+
+  routes:
+    commute: "Regular commute paths"
+    trip:    "Travel routes"
+
+INTELLIGENCE:
+
+  market_intel:
+    portfolio:   "Signals relevant to personal portfolio"
+    competitive: "Competitive intelligence"
+
+  news:
+    saved:    "Saved articles and research"
+    bookmark: "Web bookmarks worth keeping"
+
+  alerts:
+    monitor:  "Triggered watchdog events"
+
+HEALTH:
+
+  vitals:
+    sleep:       "Sleep duration and quality"
+    hrv:         "Heart rate variability"
+    steps:       "Daily step count"
+    weight:      "Body weight"
+    heart_rate:  "Resting/active heart rate"
+
+  medical:
+    appointment: "Doctor visits, appointments"
+    lab_result:  "Lab results, bloodwork"
+    record:      "Medical records"
+    prescription: "Prescriptions"
+
+  fitness:
+    workout:    "Exercise sessions"
+    sport:      "Sports activities"
+    metric:     "Performance metrics (VO2max, etc.)"
+
+  nutrition:
+    meal:     "Meals logged (optional)"
+    calories: "Caloric intake (optional)"

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>life-in-a-box — one journal. one life. yours.</title>
+  <meta name="description" content="The append-only life journal for the AI age. Agent-native, human-auditable, maximally forkable." />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --fg: #e6edf3;
+      --muted: #7d8590;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --border: #21262d;
+      --code-bg: #161b22;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 15px;
+      line-height: 1.7;
+      padding: 2rem 1rem;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    pre.logo {
+      color: var(--green);
+      font-size: 13px;
+      line-height: 1.3;
+      margin-bottom: 2.5rem;
+    }
+    h1 { font-size: 1.4rem; margin-bottom: 0.3rem; color: var(--fg); }
+    h2 { font-size: 1.1rem; color: var(--accent); margin: 2rem 0 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+    h3 { font-size: 0.95rem; color: var(--muted); margin: 1.5rem 0 0.5rem; }
+    p { margin-bottom: 1rem; color: #cdd9e5; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; }
+    code { padding: 0.15em 0.4em; font-size: 0.88em; }
+    pre { padding: 1.2rem; overflow-x: auto; margin: 1rem 0; font-size: 0.85em; line-height: 1.5; }
+    pre code { background: none; border: none; padding: 0; }
+    .tagline { color: var(--muted); font-size: 0.95rem; margin-bottom: 2rem; }
+    .links { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1.5rem 0; }
+    .links a {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.85rem;
+      color: var(--fg);
+    }
+    .links a:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.88em; }
+    th { text-align: left; padding: 0.5rem 0.75rem; background: var(--code-bg); border: 1px solid var(--border); color: var(--muted); }
+    td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); color: #cdd9e5; }
+    .badge { display: inline-block; background: var(--green); color: #000; font-size: 0.75rem; padding: 0.1rem 0.5rem; border-radius: 20px; margin-left: 0.5rem; }
+    .muted { color: var(--muted); }
+    blockquote { border-left: 3px solid var(--accent); padding-left: 1rem; color: var(--muted); margin: 1rem 0; }
+    footer { margin-top: 4rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.82rem; }
+  </style>
+</head>
+<body>
+
+<pre class="logo">
+        \  /      \  /
+     .--\//-.  .-\\/--.
+    ( o    o )( o    o )
+   /|   /\   ||   /\   |\
+  /_|  /  \  ||  /  \  |_\
+     \_\__/\_//_\__/\_/
+
+  ─────────────────────────────────────
+         l i f e - i n - a - b o x
+  ─────────────────────────────────────
+       one journal. one life. yours.
+</pre>
+
+<h1>life-in-a-box</h1>
+<p class="tagline">The append-only life journal for the AI age — agent-native, human-auditable, maximally forkable.</p>
+
+<div class="links">
+  <a href="https://github.com/taylorhou/life-in-a-box-protocol">GitHub</a>
+  <a href="https://github.com/taylorhou/life-in-a-box-protocol/blob/main/SPEC.md">Spec</a>
+  <a href="https://github.com/taylorhou/life-in-a-box-protocol/blob/main/FEDERATION.md">Federation</a>
+  <a href="https://github.com/taylorhou/life-in-a-box-protocol/blob/main/HANDOFF.md">Handoff Protocol</a>
+  <a href="https://biz-in-a-box.org">biz-in-a-box →</a>
+</div>
+
+<h2>The Problem</h2>
+<p>Your life generates a ledger. Every transaction, every message, every heartbeat, every milestone — it's all being recorded right now. The problem is it's trapped in 30 silos you don't own.</p>
+
+<table>
+  <tr><th>Silo</th><th>What it holds</th></tr>
+  <tr><td>Your bank</td><td>Every dollar in and out</td></tr>
+  <tr><td>Apple Photos</td><td>40,000 photos</td></tr>
+  <tr><td>iMessage</td><td>Every conversation for 10 years</td></tr>
+  <tr><td>Apple Health</td><td>Every heartbeat, step, night of sleep</td></tr>
+  <tr><td>Google Maps</td><td>Every place you've ever been</td></tr>
+  <tr><td>Your AI</td><td>Every decision you've ever made with it</td></tr>
+</table>
+
+<p>You can't query across it. You can't export it cleanly. You can't hand it to your kids. When the platform dies, it's gone.</p>
+
+<h2>The Solution</h2>
+<p>One append-only, hash-chained journal. On git. Owned by you.</p>
+
+<pre><code>life-in-a-box/
+├── entity.yaml      # Who you are + your relationships
+├── accounts.yaml    # Taxonomy of your life
+├── labels.yaml      # Entry classification
+├── journal.ndjson   # Every entry, forever — append only
+├── validate.js      # Chain verifier
+├── FEDERATION.md    # Linked family journals
+└── HANDOFF.md       # Custody transfer to your kids</code></pre>
+
+<p>Every entry chains to the previous via SHA-256. Tamper-evident. Portable. Local-first. Yours.</p>
+
+<h2>Federation — Linked Sovereign Journals</h2>
+<p>Each person has their own private repo. Entries that involve others create <strong>cryptographically-linked cross-references</strong> — not copies — in the other person's journal.</p>
+
+<blockquote>You log: "Took Levi to his first baseball game. He hit a double."<br>
+A reference entry appears in Levi's journal: "Dad took me to my first baseball game."<br>
+Your private notes about him stay in your journal only.</blockquote>
+
+<h3>Privacy layers</h3>
+<table>
+  <tr><th>Share level</th><th>What lands in their journal</th></tr>
+  <tr><td><code>full</code></td><td>Full memo + meta (default: spouse)</td></tr>
+  <tr><td><code>summary</code></td><td>AI-generated summary (default: kids)</td></tr>
+  <tr><td><code>reference</code></td><td>Just a date pointer</td></tr>
+  <tr><td><code>none</code></td><td>Nothing — stays in your journal only</td></tr>
+</table>
+
+<h2>The Handoff Protocol</h2>
+<p>Parents write their children's journals as custodians. At handoff (first phone, 18th birthday — your call), the repo transfers. The chain is unbroken. The child ratifies the history and carries it forward.</p>
+
+<blockquote>You didn't write your own birth story. Your parents did. But it's yours. You sign the inside cover. You carry it forward.</blockquote>
+
+<p>See <a href="https://github.com/taylorhou/life-in-a-box-protocol/blob/main/HANDOFF.md">HANDOFF.md</a> for the full ceremony spec.</p>
+
+<h2>Quick Start</h2>
+<pre><code># 1. Fork this repo
+git clone https://github.com/taylorhou/life-in-a-box-protocol my-life
+
+# 2. Edit entity.yaml with your name, timezone, relationships
+# 3. Point your AI agent at journal.ndjson
+# 4. Start logging</code></pre>
+
+<p>No database. No server. No vendor. Just git.</p>
+
+<h2>Accounts Taxonomy</h2>
+<p>The full human life taxonomy in <code>accounts.yaml</code>:</p>
+<table>
+  <tr><th>Category</th><th>What it covers</th></tr>
+  <tr><td><code>FINANCIAL</code></td><td>Assets, liabilities, income, expenses, crypto, equity</td></tr>
+  <tr><td><code>LIFE</code></td><td>Journal, health, experiences, milestones, goals, learning</td></tr>
+  <tr><td><code>COMMUNICATIONS</code></td><td>Calls, messages, email, AI sessions</td></tr>
+  <tr><td><code>MEDIA</code></td><td>Photos, videos, writing, music</td></tr>
+  <tr><td><code>IDENTITY</code></td><td>Documents, custody, legal</td></tr>
+</table>
+
+<h2>Inspired by</h2>
+<p>
+  <a href="https://biz-in-a-box.org">biz-in-a-box</a> — the same idea for business entities.<br>
+  Andrej Karpathy's vision for <a href="https://x.com/karpathy/status/2024987174077432126">nano repos</a>.<br>
+  The right to own your own life's data.
+</p>
+
+<footer>
+  MIT License · <a href="https://github.com/taylorhou/life-in-a-box-protocol">GitHub</a> · Fork it. Make it yours.
+</footer>
+
+</body>
+</html>

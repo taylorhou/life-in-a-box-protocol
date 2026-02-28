@@ -1,0 +1,24 @@
+# entity.yaml — fill this in when you fork
+id: person-your-id
+name: Your Name
+type: person
+meta:
+  timezone: America/Chicago   # change to yours
+  currency: USD
+  tax_year_end: "12-31"
+
+relationships:
+  # spouse:
+  #   id: person-spouse-id
+  #   journal_repo: yourusername/life-in-a-box-spouse
+  #   default_share: full
+
+  # custodian_of:
+  #   - id: person-child-id
+  #     name: Child Name
+  #     journal_repo: yourusername/life-in-a-box-child
+  #     default_share: summary
+
+agent:
+  name: null   # name of your AI agent, if any
+  platform: null

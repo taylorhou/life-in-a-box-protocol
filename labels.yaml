@@ -1,0 +1,66 @@
+# labels.yaml — Entry Classification System
+# Labels tag journal entries with semantic meaning.
+# Multiple labels can be applied to one entry.
+
+# ─── Inherited from biz-in-a-box ──────────────────────────────────────────────
+
+financial:        "Entry has financial impact"
+correction:       "Corrects a prior entry (references original hash)"
+transfer:         "Internal transfer between accounts (zero net worth impact)"
+historical:       "Backdated entry for events before ledger started"
+imported:         "Imported from external source (Plaid, CSV, etc.)"
+opening-balance:  "Opening balance entry to establish starting position"
+
+# ─── Financial ────────────────────────────────────────────────────────────────
+
+bank_sync:      "Synced automatically from bank/card via Plaid"
+portfolio_mark: "Mark-to-market valuation update"
+tax_lot:        "Tax lot opened (purchase with cost basis)"
+tax_event:      "Taxable event (sale, distribution, realized gain/loss)"
+cost_basis:     "Cost basis adjustment (wash sale, corporate action)"
+
+# ─── Life ─────────────────────────────────────────────────────────────────────
+
+journal_entry:  "Narrative diary entry"
+goal:           "Goal set, updated, or completed"
+milestone:      "Major life milestone achieved"
+decision:       "Significant decision recorded with reasoning"
+
+# ─── Media ────────────────────────────────────────────────────────────────────
+
+photo:   "Photo entry (hash + storage path + optional caption)"
+video:   "Video entry (hash + storage path + transcript)"
+audio:   "Audio entry (hash + storage path + transcript)"
+
+# ─── Communications ───────────────────────────────────────────────────────────
+
+call_transcript:  "Phone/video call with transcript"
+sms_thread:       "SMS/iMessage thread summary"
+email_thread:     "Email thread summary"
+chat_thread:      "Discord/Slack/Teams thread"
+social_post:      "Social media post archived"
+meeting_notes:    "Calendar event with notes/transcript"
+
+# ─── Location ─────────────────────────────────────────────────────────────────
+
+location_visit:  "Check-in at a named location"
+travel:          "Travel event (flight, trip, route)"
+
+# ─── Intelligence ─────────────────────────────────────────────────────────────
+
+market_intel:  "Market or competitive signal"
+news_item:     "Saved article or research bookmark"
+alert:         "Triggered monitor or watchdog alert"
+
+# ─── Health ───────────────────────────────────────────────────────────────────
+
+health_vital:     "Biometric reading (sleep, HRV, steps, weight)"
+medical_record:   "Medical event (appointment, lab result, prescription)"
+workout:          "Fitness or sport session"
+
+# ─── AI Comms ─────────────────────────────────────────────────────────────────
+
+ai_session:     "Conversation session with an AI agent (Al/OpenClaw)"
+ai_task:        "Discrete task delegated to and completed by an AI agent"
+ai_decision:    "Decision made with AI input — logged for audit trail"
+ai_memory:      "Fact or preference noted by AI for long-term recall"
