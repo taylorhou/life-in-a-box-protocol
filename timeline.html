@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>life-in-a-box — timeline</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --fg: #e6edf3;
+      --muted: #7d8590;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+      --purple: #bc8cff;
+      --orange: #e3b341;
+      --teal: #39d353;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+    .header-title { font-weight: 600; font-size: 0.95rem; color: var(--fg); white-space: nowrap; }
+    .header-title span { color: var(--green); }
+    .controls { display: flex; gap: 0.5rem; flex-wrap: wrap; flex: 1; }
+    .controls input, .controls select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--fg);
+      padding: 0.35rem 0.65rem;
+      font-size: 0.82rem;
+      outline: none;
+    }
+    .controls input:focus, .controls select:focus { border-color: var(--accent); }
+    .controls input[type=text] { flex: 1; min-width: 140px; }
+    .load-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--accent);
+      padding: 0.35rem 0.8rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .load-btn:hover { border-color: var(--accent); background: #1c2230; }
+    .count-badge {
+      font-size: 0.78rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* ── DROP ZONE ── */
+    .drop-zone {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      color: var(--muted);
+      border: 2px dashed var(--border);
+      margin: 2rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); color: var(--accent); }
+    .drop-zone .icon { font-size: 2.5rem; }
+    .drop-zone p { font-size: 0.9rem; }
+    .drop-zone small { font-size: 0.78rem; opacity: 0.6; }
+
+    /* ── TIMELINE ── */
+    .timeline-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 1.25rem 2rem;
+      display: flex;
+      flex-direction: column-reverse; /* oldest at bottom */
+    }
+    .timeline-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-width: 860px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── DATE DIVIDER ── */
+    .date-group { display: contents; }
+    .date-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1.25rem 0 0.5rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .date-divider::before, .date-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── ENTRY CARD ── */
+    .entry {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.6rem 0;
+      cursor: pointer;
+      position: relative;
+    }
+    .entry:hover .entry-card { border-color: var(--border); background: #1a2030; }
+
+    .entry-line {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+      width: 32px;
+    }
+    .entry-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 10px;
+      border: 2px solid var(--bg);
+    }
+    .entry-stem {
+      flex: 1;
+      width: 2px;
+      background: var(--border);
+      margin-top: 2px;
+    }
+
+    .entry-card {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 0.7rem 0.9rem;
+      transition: background 0.15s;
+      min-width: 0;
+    }
+    .entry-card.expanded { border-color: var(--accent) !important; }
+
+    .entry-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+      flex-wrap: wrap;
+    }
+    .entry-time {
+      font-size: 0.75rem;
+      color: var(--muted);
+      white-space: nowrap;
+      margin-top: 1px;
+    }
+    .entry-account {
+      font-size: 0.72rem;
+      font-family: 'SF Mono', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1em 0.45em;
+      color: var(--muted);
+      white-space: nowrap;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .entry-labels { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-left: auto; }
+    .label-tag {
+      font-size: 0.68rem;
+      padding: 0.1em 0.45em;
+      border-radius: 20px;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+
+    .entry-memo {
+      font-size: 0.88rem;
+      color: var(--fg);
+      line-height: 1.55;
+    }
+    .entry-memo.truncated {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .entry-amount {
+      font-size: 0.82rem;
+      font-family: 'SF Mono', monospace;
+      margin-top: 0.3rem;
+    }
+    .entry-amount.positive { color: var(--green); }
+    .entry-amount.negative { color: var(--red); }
+
+    /* expanded detail */
+    .entry-detail {
+      display: none;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      font-family: 'SF Mono', monospace;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .entry-detail.visible { display: block; }
+    .detail-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .detail-key { color: var(--accent); min-width: 100px; flex-shrink: 0; }
+    .detail-val { color: var(--fg); word-break: break-all; }
+    .detail-hash { font-size: 0.72rem; opacity: 0.5; }
+    .cross-ref-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.75rem;
+      color: var(--purple);
+      background: #1a1328;
+      border: 1px solid #3d2b6e;
+      border-radius: 4px;
+      padding: 0.2em 0.5em;
+      margin-top: 0.4rem;
+    }
+    .participants-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin-top: 0.4rem;
+    }
+    .participant-tag {
+      font-size: 0.72rem;
+      background: #1a2030;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1em 0.4em;
+      color: var(--accent);
+    }
+
+    /* ── COLORS BY CATEGORY ── */
+    .dot-financial { background: var(--green); }
+    .dot-life { background: var(--accent); }
+    .dot-comms { background: var(--purple); }
+    .dot-health { background: var(--red); }
+    .dot-media { background: var(--orange); }
+    .dot-identity { background: var(--yellow); }
+    .dot-ai { background: var(--teal); }
+    .dot-default { background: var(--muted); }
+
+    .tag-financial { color: var(--green); border-color: #1a3a22; background: #0d1f12; }
+    .tag-family { color: var(--orange); border-color: #3a2a10; background: #1f1608; }
+    .tag-milestone { color: var(--yellow); border-color: #3a3010; background: #1f1a08; }
+    .tag-health { color: var(--red); border-color: #3a1515; background: #1f0a0a; }
+    .tag-ai { color: var(--teal); border-color: #0e3a1e; background: #071f10; }
+    .tag-cross_ref { color: var(--purple); border-color: #3d2b6e; background: #1a1328; }
+    .tag-default { color: var(--muted); border-color: var(--border); background: transparent; }
+
+    /* ── EMPTY / LOADING ── */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* hidden file input */
+    #file-input { display: none; }
+  </style>
+</head>
+<body>
+
+<input type="file" id="file-input" accept=".ndjson,.jsonl,.json" />
+
+<div class="header">
+  <div class="header-title"><span>◈</span> life-in-a-box / timeline</div>
+  <div class="controls">
+    <input type="text" id="search" placeholder="Search entries…" />
+    <select id="filter-account">
+      <option value="">All accounts</option>
+    </select>
+    <select id="filter-label">
+      <option value="">All labels</option>
+    </select>
+    <button class="load-btn" id="load-btn">Load journal.ndjson</button>
+  </div>
+  <div class="count-badge" id="count-badge"></div>
+</div>
+
+<div class="drop-zone" id="drop-zone">
+  <div class="icon">📓</div>
+  <p>Drop your <code>journal.ndjson</code> here</p>
+  <small>or click to browse — stays local, nothing is uploaded</small>
+</div>
+
+<div class="timeline-container" id="timeline-container" style="display:none">
+  <div class="timeline-inner" id="timeline"></div>
+</div>
+
+<script>
+  let allEntries = [];
+
+  // ── FILE LOADING ──────────────────────────────────────────────────────────
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const loadBtn = document.getElementById('load-btn');
+
+  loadBtn.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', e => {
+    if (e.target.files[0]) readFile(e.target.files[0]);
+  });
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]);
+  });
+
+  function readFile(file) {
+    const reader = new FileReader();
+    reader.onload = e => parseJournal(e.target.result);
+    reader.readAsText(file);
+  }
+
+  function parseJournal(text) {
+    const lines = text.trim().split('\n').filter(l => l.trim());
+    allEntries = [];
+    for (const line of lines) {
+      try { allEntries.push(JSON.parse(line)); } catch {}
+    }
+    // Sort oldest first (index 0 = oldest)
+    allEntries.sort((a, b) => new Date(a.time || a.recorded_at || 0) - new Date(b.time || b.recorded_at || 0));
+    populateFilters();
+    renderTimeline();
+    dropZone.style.display = 'none';
+    document.getElementById('timeline-container').style.display = 'flex';
+  }
+
+  // ── FILTERS ───────────────────────────────────────────────────────────────
+  function populateFilters() {
+    const accounts = [...new Set(allEntries.map(e => e.account).filter(Boolean))].sort();
+    const labels = [...new Set(allEntries.flatMap(e => e.labels || []))].sort();
+
+    const aSelect = document.getElementById('filter-account');
+    aSelect.innerHTML = '<option value="">All accounts</option>' +
+      accounts.map(a => `<option value="${a}">${a}</option>`).join('');
+
+    const lSelect = document.getElementById('filter-label');
+    lSelect.innerHTML = '<option value="">All labels</option>' +
+      labels.map(l => `<option value="${l}">${l}</option>`).join('');
+  }
+
+  document.getElementById('search').addEventListener('input', renderTimeline);
+  document.getElementById('filter-account').addEventListener('change', renderTimeline);
+  document.getElementById('filter-label').addEventListener('change', renderTimeline);
+
+  function filteredEntries() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const acct = document.getElementById('filter-account').value;
+    const lbl = document.getElementById('filter-label').value;
+    return allEntries.filter(e => {
+      if (acct && e.account !== acct) return false;
+      if (lbl && !(e.labels || []).includes(lbl)) return false;
+      if (q) {
+        const haystack = [e.memo, e.account, ...(e.labels || []), e.id].join(' ').toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      return true;
+    });
+  }
+
+  // ── RENDER ────────────────────────────────────────────────────────────────
+  function renderTimeline() {
+    const entries = filteredEntries();
+    const el = document.getElementById('timeline');
+    const badge = document.getElementById('count-badge');
+    badge.textContent = `${entries.length} of ${allEntries.length} entries`;
+
+    if (!entries.length) {
+      el.innerHTML = '<div class="empty-state">No matching entries</div>';
+      return;
+    }
+
+    // Group by date — but remember container is column-reverse so we build top-down
+    // and visual result is oldest at bottom
+    const groups = {};
+    for (const entry of entries) {
+      const d = dateKey(entry.time || entry.recorded_at);
+      if (!groups[d]) groups[d] = [];
+      groups[d].push(entry);
+    }
+
+    const sortedDates = Object.keys(groups).sort();
+    let html = '';
+
+    for (const date of sortedDates) {
+      html += `<div class="date-group">`;
+      html += `<div class="date-divider">${formatDate(date)}</div>`;
+      for (const entry of groups[date]) {
+        html += renderEntry(entry);
+      }
+      html += `</div>`;
+    }
+
+    el.innerHTML = html;
+
+    // attach click handlers
+    el.querySelectorAll('.entry').forEach(card => {
+      card.addEventListener('click', () => {
+        const detail = card.querySelector('.entry-detail');
+        const ec = card.querySelector('.entry-card');
+        const memo = card.querySelector('.entry-memo');
+        if (detail.classList.contains('visible')) {
+          detail.classList.remove('visible');
+          ec.classList.remove('expanded');
+          if (memo) memo.classList.add('truncated');
+        } else {
+          detail.classList.add('visible');
+          ec.classList.add('expanded');
+          if (memo) memo.classList.remove('truncated');
+        }
+      });
+    });
+  }
+
+  function renderEntry(e) {
+    const cat = categoryOf(e.account);
+    const dotClass = `dot-${cat}`;
+    const time = formatTime(e.time || e.recorded_at);
+    const labels = (e.labels || []);
+
+    const labelTags = labels.map(l => {
+      const cls = labelClass(l);
+      return `<span class="label-tag ${cls}">${l}</span>`;
+    }).join('');
+
+    const amountHtml = e.amount != null
+      ? `<div class="entry-amount ${e.amount >= 0 ? 'positive' : 'negative'}">${e.amount >= 0 ? '+' : ''}${e.amount.toLocaleString('en-US', {style:'currency',currency: e.currency||'USD'})}</div>`
+      : '';
+
+    const participantsHtml = (e.participants || []).length
+      ? `<div class="participants-row">${e.participants.map(p => `<span class="participant-tag">@${p.replace('person-','')}</span>`).join('')}</div>`
+      : '';
+
+    const crossRefHtml = e.cross_ref
+      ? `<div class="cross-ref-badge">⟵ cross-ref from ${e.cross_ref.source_entity?.replace('person-','') || 'unknown'}</div>`
+      : '';
+
+    const detail = buildDetail(e);
+
+    return `
+    <div class="entry">
+      <div class="entry-line">
+        <div class="entry-dot ${dotClass}"></div>
+        <div class="entry-stem"></div>
+      </div>
+      <div class="entry-card">
+        <div class="entry-header">
+          <span class="entry-time">${time}</span>
+          <span class="entry-account" title="${e.account||''}">${e.account||'—'}</span>
+          <div class="entry-labels">${labelTags}</div>
+        </div>
+        <div class="entry-memo truncated">${escHtml(e.memo || '(no memo)')}</div>
+        ${amountHtml}
+        ${participantsHtml}
+        ${crossRefHtml}
+        <div class="entry-detail">${detail}</div>
+      </div>
+    </div>`;
+  }
+
+  function buildDetail(e) {
+    const rows = [];
+    if (e.id) rows.push(['id', e.id]);
+    if (e.recorded_at && e.recorded_at !== e.time) rows.push(['recorded_at', e.recorded_at]);
+    if (e.recorded_by) rows.push(['recorded_by', e.recorded_by]);
+    if (e.source) rows.push(['source', e.source]);
+    if (e.corrects) rows.push(['corrects', e.corrects]);
+    if (e.cross_ref) {
+      rows.push(['source_entity', e.cross_ref.source_entity || '']);
+      rows.push(['source_repo', e.cross_ref.source_repo || '']);
+      rows.push(['source_entry_id', e.cross_ref.source_entry_id || '']);
+      rows.push(['source_hash', e.cross_ref.source_hash || '']);
+    }
+    if (e.meta && Object.keys(e.meta).length) {
+      rows.push(['meta', JSON.stringify(e.meta, null, 2)]);
+    }
+    rows.push(['prev', e.prev || '']);
+    rows.push(['hash', e.hash || '']);
+
+    return rows.map(([k, v]) => `
+      <div class="detail-row">
+        <span class="detail-key">${k}</span>
+        <span class="detail-val ${k === 'hash' || k === 'prev' ? 'detail-hash' : ''}">${escHtml(String(v))}</span>
+      </div>`).join('');
+  }
+
+  // ── HELPERS ───────────────────────────────────────────────────────────────
+  function categoryOf(account) {
+    if (!account) return 'default';
+    const a = account.toUpperCase();
+    if (a.startsWith('FINANCIAL')) return 'financial';
+    if (a.startsWith('LIFE')) return 'life';
+    if (a.startsWith('COMMUNICATIONS.AI') || a.startsWith('COMMUNICATIONS.AI')) return 'ai';
+    if (a.startsWith('COMMUNICATIONS')) return 'comms';
+    if (a.startsWith('HEALTH') || a.includes('HEALTH')) return 'health';
+    if (a.startsWith('MEDIA')) return 'media';
+    if (a.startsWith('IDENTITY')) return 'identity';
+    return 'default';
+  }
+
+  function labelClass(l) {
+    const map = {
+      financial: 'tag-financial', bank_sync: 'tag-financial',
+      family: 'tag-family',
+      milestone: 'tag-milestone',
+      health_vital: 'tag-health', workout: 'tag-health', medical_record: 'tag-health',
+      ai_session: 'tag-ai', ai_task: 'tag-ai', ai_decision: 'tag-ai', ai_memory: 'tag-ai',
+      cross_ref: 'tag-cross_ref',
+    };
+    return map[l] || 'tag-default';
+  }
+
+  function dateKey(iso) {
+    if (!iso) return 'unknown';
+    return iso.slice(0, 10);
+  }
+
+  function formatDate(d) {
+    if (d === 'unknown') return 'Unknown date';
+    const dt = new Date(d + 'T12:00:00');
+    return dt.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function formatTime(iso) {
+    if (!iso) return '';
+    try {
+      return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    } catch { return iso.slice(11, 16); }
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── DEMO MODE — load sample data if URL has ?demo ─────────────────────────
+  if (location.search.includes('demo')) {
+    const now = new Date();
+    const demo = [
+      { id:'1', prev:'sha256:genesis', time: new Date(now - 86400000*3).toISOString(), account:'LIFE.journal.daily', labels:['journal_entry'], memo:'First entry. Starting my life-in-a-box journal today. Feels weird but good.', hash:'sha256:aaa' },
+      { id:'2', prev:'sha256:aaa', time: new Date(now - 86400000*3 + 3600000*8).toISOString(), account:'FINANCIAL.expenses.food_dining', labels:['bank_sync','financial'], memo:'Breakfast — Local coffee shop', amount:-14.50, currency:'USD', hash:'sha256:bbb' },
+      { id:'3', prev:'sha256:bbb', time: new Date(now - 86400000*2).toISOString(), account:'LIFE.experiences.family', labels:['family','milestone'], memo:'Took Levi to his first baseball game at Dell Diamond. He hit a double in the 3rd inning.', participants:['person-levi-hou'], hash:'sha256:ccc' },
+      { id:'4', prev:'sha256:ccc', time: new Date(now - 86400000*2 + 3600000*4).toISOString(), account:'LIFE.health.workout', labels:['workout','health_vital'], memo:'Morning run — 4.2 miles, 38 mins. Felt strong.', hash:'sha256:ddd' },
+      { id:'5', prev:'sha256:ddd', time: new Date(now - 86400000).toISOString(), account:'COMMUNICATIONS.ai.al', labels:['ai_session'], memo:'Session: built life-in-a-box federation design. Created family repos. Discussed handoff protocol.', recorded_by:'al (OpenClaw)', hash:'sha256:eee' },
+      { id:'6', prev:'sha256:eee', time: new Date(now - 3600000).toISOString(), account:'FINANCIAL.income.dividends', labels:['financial','portfolio_mark'], memo:'Coinbase dividend distribution', amount:320.00, currency:'USD', hash:'sha256:fff' },
+    ];
+    parseJournal(demo.map(e => JSON.stringify(e)).join('\n'));
+  }
+</script>
+</body>
+</html>
