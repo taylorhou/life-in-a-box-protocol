@@ -303,6 +303,26 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
+    /* ── LOAD PREV DAY ── */
+    .load-prev-wrap {
+      display: flex;
+      justify-content: center;
+      padding: 1.25rem 0 0.5rem;
+    }
+    .load-prev-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      padding: 0.5rem 1.2rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .load-prev-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .prev-count { opacity: 0.55; }
+    .all-loaded { color: var(--muted); font-size: 0.78rem; opacity: 0.5; }
+
     /* hidden file input */
     #file-input { display: none; }
   </style>
@@ -338,6 +358,8 @@
 
 <script>
   let allEntries = [];
+  let visibleDates = []; // dates currently shown, starts with today only
+  let allSortedDates = [];
 
   // ── FILE LOADING ──────────────────────────────────────────────────────────
   const dropZone = document.getElementById('drop-zone');
@@ -371,8 +393,16 @@
     for (const line of lines) {
       try { allEntries.push(JSON.parse(line)); } catch {}
     }
-    // Sort oldest first (index 0 = oldest)
     allEntries.sort((a, b) => new Date(a.time || a.recorded_at || 0) - new Date(b.time || b.recorded_at || 0));
+
+    // Build sorted date list (newest first)
+    const dateSet = new Set(allEntries.map(e => dateKey(e.time || e.recorded_at)));
+    allSortedDates = [...dateSet].sort().reverse();
+
+    // Default: show only today (or most recent day if no entries today)
+    const todayKey = dateKey(new Date().toISOString());
+    visibleDates = allSortedDates.includes(todayKey) ? [todayKey] : allSortedDates.slice(0, 1);
+
     populateFilters();
     renderTimeline();
     dropZone.style.display = 'none';
@@ -391,6 +421,15 @@
     const lSelect = document.getElementById('filter-label');
     lSelect.innerHTML = '<option value="">All labels</option>' +
       labels.map(l => `<option value="${l}">${l}</option>`).join('');
+  }
+
+  function loadPrevDay() {
+    const lastVisible = visibleDates[visibleDates.length - 1];
+    const nextIdx = allSortedDates.indexOf(lastVisible) + 1;
+    if (nextIdx < allSortedDates.length) {
+      visibleDates = [...visibleDates, allSortedDates[nextIdx]];
+      renderTimeline();
+    }
   }
 
   document.getElementById('search').addEventListener('input', renderTimeline);
@@ -417,32 +456,59 @@
     const entries = filteredEntries();
     const el = document.getElementById('timeline');
     const badge = document.getElementById('count-badge');
-    badge.textContent = `${entries.length} of ${allEntries.length} entries`;
+    const visibleTotal = allEntries.filter(e => visibleDates.includes(dateKey(e.time || e.recorded_at))).length;
+    badge.textContent = `${visibleTotal} entries · ${visibleDates.length} of ${allSortedDates.length} days`;
 
-    if (!entries.length) {
+    // Filter to only visible dates, then apply search/label filters
+    const visibleEntries = entries.filter(e => visibleDates.includes(dateKey(e.time || e.recorded_at)));
+
+    if (!visibleEntries.length && !allEntries.length) {
       el.innerHTML = '<div class="empty-state">No matching entries</div>';
       return;
     }
 
-    // Group by date — newest date at top, oldest at bottom
-    // Within each day: newest entry at top
-    const groups = {};
-    for (const entry of entries) {
-      const d = dateKey(entry.time || entry.recorded_at);
-      if (!groups[d]) groups[d] = [];
-      groups[d].push(entry);
+    // Build full groups (for load-prev counts)
+    const allGroups = {};
+    for (const e of allEntries) {
+      const d = dateKey(e.time || e.recorded_at);
+      if (!allGroups[d]) allGroups[d] = [];
+      allGroups[d].push(e);
     }
 
-    // Newest dates first; within each day, newest entries first
-    const sortedDates = Object.keys(groups).sort().reverse();
+    // Build visible groups
+    const groups = {};
+    for (const e of visibleEntries) {
+      const d = dateKey(e.time || e.recorded_at);
+      if (!groups[d]) groups[d] = [];
+      groups[d].push(e);
+    }
+
     let html = '';
 
-    for (const date of sortedDates) {
-      const dayEntries = groups[date].slice().reverse(); // newest first within day
+    // "Load previous day" button pinned at bottom
+    const lastVisible = visibleDates[visibleDates.length - 1];
+    const nextIdx = allSortedDates.indexOf(lastVisible) + 1;
+    const hasMore = nextIdx < allSortedDates.length;
+    if (hasMore) {
+      const nextDate = allSortedDates[nextIdx];
+      const nextCount = (allGroups[nextDate] || []).length;
+      html += `<div class="load-prev-wrap">
+        <button class="load-prev-btn" onclick="loadPrevDay()">
+          ↓ Load ${formatDate(nextDate)}&nbsp;&nbsp;<span class="prev-count">${nextCount} entr${nextCount===1?'y':'ies'}</span>
+        </button>
+      </div>`;
+    } else if (allSortedDates.length > 1) {
+      html += `<div class="load-prev-wrap"><span class="all-loaded">— beginning of journal —</span></div>`;
+    }
+
+    // Render visible days newest-first
+    for (const date of visibleDates) {
+      if (!groups[date]) continue;
+      const dayEntries = groups[date].slice().reverse();
       html += `<div class="date-group">`;
       html += `<div class="date-divider">${formatDate(date)}</div>`;
-      for (const entry of dayEntries) {
-        html += renderEntry(entry);
+      for (const e of dayEntries) {
+        html += renderEntry(e);
       }
       html += `</div>`;
     }
