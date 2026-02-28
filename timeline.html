@@ -99,7 +99,7 @@
       overflow-y: auto;
       padding: 1rem 1.25rem 2rem;
       display: flex;
-      flex-direction: column-reverse; /* oldest at bottom */
+      flex-direction: column; /* newest top, oldest bottom */
     }
     .timeline-inner {
       display: flex;
@@ -424,8 +424,8 @@
       return;
     }
 
-    // Group by date — but remember container is column-reverse so we build top-down
-    // and visual result is oldest at bottom
+    // Group by date — newest date at top, oldest at bottom
+    // Within each day: newest entry at top
     const groups = {};
     for (const entry of entries) {
       const d = dateKey(entry.time || entry.recorded_at);
@@ -433,13 +433,15 @@
       groups[d].push(entry);
     }
 
-    const sortedDates = Object.keys(groups).sort();
+    // Newest dates first; within each day, newest entries first
+    const sortedDates = Object.keys(groups).sort().reverse();
     let html = '';
 
     for (const date of sortedDates) {
+      const dayEntries = groups[date].slice().reverse(); // newest first within day
       html += `<div class="date-group">`;
       html += `<div class="date-divider">${formatDate(date)}</div>`;
-      for (const entry of groups[date]) {
+      for (const entry of dayEntries) {
         html += renderEntry(entry);
       }
       html += `</div>`;
